@@ -104,8 +104,12 @@ namespace PhysicEngine.Objects
         
         public static CollisionManifold checkCollision(Object2D a, Object2D b)
         {
-            IntersectData data = a.Shape.intersects(b.Shape);
-            return new CollisionManifold(a,b,data);
+            if (a.iMass != 0 || b.iMass != 0)
+            {
+                IntersectData data = a.Shape.intersects(b.Shape);
+                return new CollisionManifold(a, b, data);
+            }
+            return new CollisionManifold(a, b, new IntersectData());
         }
 
 

@@ -52,15 +52,33 @@ namespace PhysicEngine
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Helper.Initialize(GraphicsDevice);
-            Shape2D shape = new CircleShape(40, new Vector2(399, 0));
-            Shape2D shape1 = new CircleShape(40, new Vector2(400, 400));
-            Shape2D shape2 = new CircleShape(40, new Vector2(600, 0));
+            Shape2D edgeshape = new RectangleShape(new Rectangle(0, 0, 800, 20), new Point(400, 480));
+            Shape2D edgeshape1 = new RectangleShape(new Rectangle(0, 0, 800, 20), new Point(400, 0));
+            Shape2D edgeshape2 = new RectangleShape(new Rectangle(0, 0, 20, 480), new Point(0, 240));
+            Shape2D edgeshape3 = new RectangleShape(new Rectangle(0, 0, 20, 480), new Point(800, 240));
+            Shape2D edgeshape4 = new RectangleShape(new Rectangle(0, 0, 20, 20), new Point(40, 40));
+            Shape2D shape = new CircleShape(5, new Vector2(299, 50));
+            Shape2D shape1 = new CircleShape(5, new Vector2(300, 50));
+            Shape2D shape2 = new CircleShape(5, new Vector2(301, 0));
+            Shape2D shape3 = new CircleShape(5, new Vector2(302, 0));
+            Shape2D shape4 = new CircleShape(5, new Vector2(303, 0));
+            Shape2D shape5 = new CircleShape(5, new Vector2(304, 0));
+            Shape2D shape6 = new CircleShape(5, new Vector2(305, 0));
 
             objects = new List<Object2D>();
 
-            objects.Add(new Object2D(shape, Helper.genCircleTexture(80, Color.White, Color.Black, 2), 10f, new Vector2(40), 1));
-            objects.Add(new Object2D(shape1, Helper.genCircleTexture(80, Color.White, Color.Black, 2), float.PositiveInfinity, new Vector2(20), 1));
-            objects.Add(new Object2D(shape2, Helper.genCircleTexture(80, Color.White, Color.Black, 2), 3f, new Vector2(40), 1));
+            objects.Add(new Object2D(edgeshape, Helper.genRectangleTexture(800, 20, Color.White, Color.Black), float.PositiveInfinity, new Vector2(400, 10), 1f));
+            objects.Add(new Object2D(edgeshape1, Helper.genRectangleTexture(800, 20, Color.White, Color.Black), float.PositiveInfinity, new Vector2(400, 10), 1f));
+            objects.Add(new Object2D(edgeshape2, Helper.genRectangleTexture(20, 480, Color.White, Color.Black), float.PositiveInfinity, new Vector2(10, 240), 1f));
+            objects.Add(new Object2D(edgeshape3, Helper.genRectangleTexture(20, 480, Color.White, Color.Black), float.PositiveInfinity, new Vector2(10, 240), 1f));
+            objects.Add(new Object2D(edgeshape4, Helper.genRectangleTexture(20, 20, Color.White, Color.Black), 2f, new Vector2(10, 10), 1f));
+            objects.Add(new Object2D(shape, Helper.genCircleTexture(10, Color.White, Color.Black, 2), 2f, new Vector2(5), 1f));
+            objects.Add(new Object2D(shape1, Helper.genCircleTexture(10, Color.White, Color.Black, 2), 2f, new Vector2(5), 1f));
+            objects.Add(new Object2D(shape2, Helper.genCircleTexture(10, Color.White, Color.Black, 2), 2f, new Vector2(5), 1f));
+            objects.Add(new Object2D(shape3, Helper.genCircleTexture(10, Color.White, Color.Black, 2), 2f, new Vector2(5), 1f));
+            objects.Add(new Object2D(shape4, Helper.genCircleTexture(10, Color.White, Color.Black, 2), 2f, new Vector2(5), 1f));
+            objects.Add(new Object2D(shape5, Helper.genCircleTexture(10, Color.White, Color.Black, 2), 2f, new Vector2(5), 1f));
+            objects.Add(new Object2D(shape6, Helper.genCircleTexture(10, Color.White, Color.Black, 2), 2f, new Vector2(5), 1f));
             // TODO: use this.Content to load your game content here
         }
 

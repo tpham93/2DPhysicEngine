@@ -45,6 +45,10 @@ namespace PhysicEngine.Collision
                 Vector2 impulse = intersectData.Mtv * impulseMagnitude;
                 A.Velocity -= A.IMass * impulse;
                 B.Velocity += B.IMass * impulse;
+                if (A.IMass != 0)
+                    A.Position -= intersectData.Mtv * intersectData.PenetrationDepth;
+                if (B.IMass != 0)
+                    B.Position += intersectData.Mtv * intersectData.PenetrationDepth;
             }
         }
     }
