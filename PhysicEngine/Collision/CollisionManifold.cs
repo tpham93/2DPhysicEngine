@@ -40,15 +40,35 @@ namespace PhysicEngine.Collision
                 Vector2 relativeVelocity = B.Velocity - A.Velocity;
                 float velocityAlongMTV = Vector2.Dot(relativeVelocity, IntersectData.Mtv);
 
-                float minRestitution = Math.Min(A.Restitution, B.Restitution);
-                float impulseMagnitude = -((1 + minRestitution) * velocityAlongMTV) / (A.IMass + B.IMass);
+                float minRestitution = Math.Min(A.MaterialData.Restitution, B.MaterialData.Restitution);
+                float impulseMagnitude = -((1 + minRestitution) * velocityAlongMTV) / (A.MassData.IMass + B.MassData.IMass);
                 Vector2 impulse = intersectData.Mtv * impulseMagnitude;
-                A.Velocity -= A.IMass * impulse;
-                B.Velocity += B.IMass * impulse;
-                if (A.IMass != 0)
+                if (A.MassData.IMass != 0)
+                {
+                    A.Velocity -= A.MassData.IMass * impulse;
                     A.Position -= intersectData.Mtv * intersectData.PenetrationDepth;
-                if (B.IMass != 0)
+                }
+                if (B.MassData.IMass != 0)
+                {
+                    B.Velocity += B.MassData.IMass * impulse;
                     B.Position += intersectData.Mtv * intersectData.PenetrationDepth;
+                }
+                positionalCorrection();
+            }
+        }
+
+        private void positionalCorrection()
+        {
+            const float percent = 0.2f;
+            const float slop = 0.01f;
+            Vector2 correction = Math.Max(intersectData.PenetrationDepth - slop, 0.0f) / (A.MassData.IMass + B.MassData.IMass) * percent * intersectData.Mtv;
+            if (A.MassData.IMass != 0)
+            {
+                A.Position += correction * A.MassData.IMass;
+            }
+            if (B.MassData.IMass != 0)
+            {
+                B.Position -= correction * B.MassData.IMass;
             }
         }
     }

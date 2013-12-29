@@ -5,7 +5,9 @@ using System.Text;
 
 namespace PhysicEngine.Objects
 {
-    class CircleObject
+    class PhysicalConstants
     {
+        public const float PixelToMeter = 10;
+
     }
 }

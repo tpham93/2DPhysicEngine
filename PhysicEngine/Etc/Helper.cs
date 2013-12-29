@@ -120,14 +120,15 @@ namespace PhysicEngine.Etc
             for (int i = 0; i < corners.Length; ++i)
             {
                 minPoint.X = Math.Min((int)corners[i].X, minPoint.X);
-                minPoint.Y = Math.Min((int)corners[i].X, minPoint.Y);
+                minPoint.Y = Math.Min((int)corners[i].Y, minPoint.Y);
+
                 maxPoint.X = Math.Max((int)corners[i].X, maxPoint.X);
-                maxPoint.Y = Math.Max((int)corners[i].X, maxPoint.Y);
+                maxPoint.Y = Math.Max((int)corners[i].Y, maxPoint.Y);
             }
 
             Rectangle r = new Rectangle(minPoint.X, minPoint.Y, maxPoint.X - minPoint.X, maxPoint.Y - minPoint.Y);
 
-            return genPolygonTexture(corners, r.Center, r.Bottom, r.Right, color, outline, outlineWidth);
+            return genPolygonTexture(corners, r.Center, r.Right, r.Bottom, color, outline, outlineWidth);
         }
 
         /// <summary>
@@ -158,7 +159,7 @@ namespace PhysicEngine.Etc
             {
                 Vector2 startPoint = corners[i - 1];
                 Vector2 edge = corners[i % corners.Length] - corners[i - 1];
-                spriteBatch.Draw(pixel, new Rectangle((int)startPoint.X, (int)startPoint.Y, (int)Math.Ceiling(edge.Length()), outlineWidth), null, outline, (float)Helper.getAngleFromVector2(edge), new Vector2(0, outlineWidth * 0.5f), SpriteEffects.None, 0);
+                spriteBatch.Draw(pixel, new Rectangle((int)startPoint.X, (int)startPoint.Y, (int)Math.Ceiling(edge.Length()), outlineWidth), null, outline, (float)Helper.getAngleFromVector2(edge), new Vector2(0, outlineWidth), SpriteEffects.None, 0);
             }
             spriteBatch.End();
 
@@ -167,6 +168,7 @@ namespace PhysicEngine.Etc
             Stack<Point> nextPoints = new Stack<Point>();
             nextPoints.Push(new Point((int)fillPoint.X, (int)fillPoint.Y));
 
+            bool[] checkedPixel = new bool[width * height];
             Color[] pixels = new Color[width * height];
 
             renderTarget.GetData<Color>(pixels);
@@ -175,22 +177,23 @@ namespace PhysicEngine.Etc
             {
                 Point currentPos = nextPoints.Pop();
                 int index = currentPos.X + currentPos.Y * width;
+                checkedPixel[index] = true;
                 if (pixels[index] != outline)
                 {
                     pixels[index] = color;
-                    if (currentPos.X > 0 && pixels[index - 1] == Color.Transparent)
+                    if (currentPos.X > 0 && !checkedPixel[index - 1])
                     {
                         nextPoints.Push(new Point(currentPos.X - 1, currentPos.Y));
                     }
-                    if (currentPos.X < width - 1 && pixels[index + 1] == Color.Transparent)
+                    if (currentPos.X < width - 1 && !checkedPixel[index + 1])
                     {
                         nextPoints.Push(new Point(currentPos.X + 1, currentPos.Y));
                     }
-                    if (currentPos.Y > 0 && pixels[index - width] == Color.Transparent)
+                    if (currentPos.Y > 0 && !checkedPixel[index - width])
                     {
                         nextPoints.Push(new Point(currentPos.X, currentPos.Y - 1));
                     }
-                    if (currentPos.Y < height - 1 && pixels[index + width] == Color.Transparent)
+                    if (currentPos.Y < height - 1 && !checkedPixel[index + width])
                     {
                         nextPoints.Push(new Point(currentPos.X, currentPos.Y + 1));
                     }
@@ -215,11 +218,12 @@ namespace PhysicEngine.Etc
         {
             return genCircleTexture(size, color, color, outlineWidth);
         }
-        public static Texture2D genCircleTexture(int size, Color basicColor, Color borderColor, int outlineWidth)
+        public static Texture2D genCircleTexture(int radius, Color basicColor, Color borderColor, int outlineWidth)
         {
+            int size = 2 * radius;
             Texture2D texture = new Texture2D(graphicsDevice, size, size);
             Color[] data = new Color[size * size];
-            Point middlePoint = new Point(size / 2, size / 2);
+            Point middlePoint = new Point(radius, radius);
 
             for (int x = 0; x < size; x++)
             {
@@ -227,13 +231,13 @@ namespace PhysicEngine.Etc
                 {
                     int circleState = 0;
 
-                    circleState = inCircle(size / 2, new Point(x, y), middlePoint);
+                    circleState = inCircle(radius, new Point(x, y), middlePoint);
                     if (circleState <= 0)
                     {
                         data[x + y * size] = borderColor;
                     }
 
-                    circleState = inCircle(size / 2 - outlineWidth, new Point(x, y), middlePoint);
+                    circleState = inCircle(radius - outlineWidth, new Point(x, y), middlePoint);
                     if (circleState <= 0)
                     {
                         data[x + y * size] = basicColor;

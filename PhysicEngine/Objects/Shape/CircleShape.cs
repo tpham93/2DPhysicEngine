@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PhysicEngine.Collision;
 using PhysicEngine.Etc;
 
-namespace PhysicEngine.Shape
+namespace PhysicEngine.Object.Shape
 {
     class CircleShape : Shape2D
     {
@@ -28,7 +28,6 @@ namespace PhysicEngine.Shape
         {
             get { return EShapeType.CircleShape; }
         }
-
 
         /// <summary>
         /// gets & sets the position
@@ -61,9 +60,9 @@ namespace PhysicEngine.Shape
         }
 
         public CircleShape(float radius, Vector2 position, bool moveable = true)
-            : base(radius, position, new Vector2(radius, radius), moveable)
+            : base(radius, position, new Vector2(radius), moveable)
         {
-
+            this.area = MathHelper.Pi * radius * radius;
         }
 
 
@@ -139,7 +138,7 @@ namespace PhysicEngine.Shape
         /// <returns>true if point is inside of the object</returns>
         public override bool contains(Vector2 point)
         {
-            return (MiddlePoint - point).LengthSquared() <= radius * radius;
+            return (Position - point).LengthSquared() <= radius * radius;
         }
 
         /// <summary>

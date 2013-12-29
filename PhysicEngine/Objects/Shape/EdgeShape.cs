@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PhysicEngine.Etc;
 using PhysicEngine.Collision;
 
-namespace PhysicEngine.Shape
+namespace PhysicEngine.Object.Shape
 {
     class EdgeShape : Shape2D
     {
@@ -89,9 +89,29 @@ namespace PhysicEngine.Shape
             }
         }
 
-        public EdgeShape(Vector2[] corners, Vector2 size, Vector2 position, bool moveable = true)
-            : base((size / 2).Length(), position, size / 2, moveable)
+        public EdgeShape(Vector2[] corners, Vector2 position, bool moveable = true)
+            : base(0, position, Vector2.Zero, moveable)
         {
+
+            float area = 0.0f;
+            Vector2 middlePoint = Vector2.Zero;
+            for (int i = 0; i < corners.Length; ++i)
+            {
+                int j = (i + 1) % corners.Length;
+                /// (xi * yi+1 - xi+1 * yi)
+                float tmp = (corners[i].X * corners[j].Y) - (corners[j].X * corners[i].Y);
+                area += tmp;
+                middlePoint += (corners[i] + corners[j]) * tmp;
+            }
+
+            area /= 2f;
+            area = Math.Abs(area);
+            this.area = area;
+
+            middlePoint /= 6 * area;
+            this.MiddlePoint = new Vector2(Math.Abs(middlePoint.X),Math.Abs(middlePoint.Y));
+            this.radius = MiddlePoint.Length();
+
             this.corners = new Vector2[corners.Length];
             this.currentCorners = new Vector2[corners.Length];
             this.normals = new List<Vector2>(corners.Length);
@@ -106,30 +126,11 @@ namespace PhysicEngine.Shape
             {
                 Vector2 edge = this.corners[i - 1] - this.corners[i % corners.Length];
                 Vector2 normal = Vector2.Normalize(new Vector2(-edge.Y, edge.X));
-                normals.Add(normal);
-                currentNormals.Add(normal);
-            }
-        }
-
-        public EdgeShape(Vector2[] corners, Vector2 size, Vector2 middlepoint, Vector2 position, bool moveable = true)
-            : base((size / 2).Length(), position, middlepoint, moveable)
-        {
-            this.corners = new Vector2[corners.Length];
-            this.currentCorners = new Vector2[corners.Length];
-            this.normals = new List<Vector2>(corners.Length);
-            this.currentNormals = new List<Vector2>(corners.Length);
-
-            for (int i = 0; i < corners.Length; ++i)
-            {
-                this.corners[i] = new Vector2(corners[i].X, corners[i].Y) - MiddlePoint;
-                this.currentCorners[i] = this.corners[i] + position;
-            }
-            for (int i = 1; i <= corners.Length; ++i)
-            {
-                Vector2 edge = this.corners[i - 1] - this.corners[i % corners.Length];
-                Vector2 normal = Vector2.Normalize(new Vector2(-edge.Y, edge.X));
-                normals.Add(normal);
-                currentNormals.Add(normal);
+                if (!normals.Contains(normal))
+                {
+                    normals.Add(normal);
+                    currentNormals.Add(normal);
+                }
             }
         }
 
@@ -185,7 +186,6 @@ namespace PhysicEngine.Shape
                     mtv.length = -distance;
                     mtv.direction = possibleMtv;
                 }
-
             }
             foreach (Vector2 n in o.currentNormals)
             {
@@ -344,84 +344,14 @@ namespace PhysicEngine.Shape
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// generates a texture based on the input data
-        /// </summary>
-        /// <param name="corners">corners the shape should have in CW</param>
-        /// <param name="fillPoint">the point where the function begins to fill the texture</param>
-        /// <param name="width">the texture's width</param>
-        /// <param name="height">the texture's height</param>
-        /// <param name="color">the tecture's filling color</param>
-        /// <returns>a texture for an EdgeObject</returns>
-        public static Texture2D genTexture(Vector2[] corners, Vector2 fillPoint, int width, int height, Color color)
-        {
-            Texture2D pixel = new Texture2D(graphicsDevice, 1, 1);
-            pixel.SetData(new Color[] { Color.White });
-            RenderTargetBinding[] originalRenderTarget = graphicsDevice.GetRenderTargets();
-
-            RenderTarget2D renderTarget = new RenderTarget2D(graphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-            graphicsDevice.SetRenderTarget(renderTarget);
-
-            graphicsDevice.Clear(Color.Transparent);
-
-            SpriteBatch spriteBatch = new SpriteBatch(graphicsDevice);
-            spriteBatch.Begin();
-            for (int i = 1; i <= corners.Length; ++i)
-            {
-                Vector2 startPoint = corners[i - 1];
-                Vector2 edge = corners[i % corners.Length] - corners[i - 1];
-                spriteBatch.Draw(pixel, new Rectangle((int)startPoint.X, (int)startPoint.Y, (int)Math.Ceiling(edge.Length()), 1), null, color, (float)Helper.getAngleFromVector2(edge), Vector2.Zero, SpriteEffects.None, 0);
-            }
-            spriteBatch.End();
-
-            graphicsDevice.SetRenderTargets(originalRenderTarget);
-
-            Stack<Point> nextPoints = new Stack<Point>();
-            nextPoints.Push(new Point((int)fillPoint.X, (int)fillPoint.Y));
-
-            Color[] pixels = new Color[width * height];
-
-            renderTarget.GetData<Color>(pixels);
-
-            while (nextPoints.Count > 0)
-            {
-                Point currentPos = nextPoints.Pop();
-                int index = currentPos.X + currentPos.Y * width;
-                if (index < pixels.Length && pixels[index] == Color.Transparent)
-                {
-                    pixels[index] = color;
-                    if (currentPos.X > 0 && pixels[index - 1] == Color.Transparent)
-                    {
-                        nextPoints.Push(new Point(currentPos.X - 1, currentPos.Y));
-                    }
-                    if (currentPos.X < width - 1 && pixels[index + 1] == Color.Transparent)
-                    {
-                        nextPoints.Push(new Point(currentPos.X + 1, currentPos.Y));
-                    }
-                    if (currentPos.Y > 0 && pixels[index - width] == Color.Transparent)
-                    {
-                        nextPoints.Push(new Point(currentPos.X, currentPos.Y - 1));
-                    }
-                    if (currentPos.Y < height - 1 && pixels[index + width] == Color.Transparent)
-                    {
-                        nextPoints.Push(new Point(currentPos.X, currentPos.Y + 1));
-                    }
-                }
-            }
-            renderTarget.SetData<Color>(pixels);
-
-            return renderTarget;
-        }
-
-
         public static Vector2[] genCorners(Vector2 rectangleSize)
         {
             Vector2[] corners = new Vector2[4];
 
             corners[0] = new Vector2(0, 0);
-            corners[1] = new Vector2(0, rectangleSize.Y * 1);
-            corners[2] = new Vector2(rectangleSize.X * 1, rectangleSize.Y * 1);
-            corners[3] = new Vector2(rectangleSize.X * 1, 0);
+            corners[1] = new Vector2(0, rectangleSize.Y);
+            corners[2] = new Vector2(rectangleSize.X, rectangleSize.Y);
+            corners[3] = new Vector2(rectangleSize.X, 0);
 
             return corners;
         }

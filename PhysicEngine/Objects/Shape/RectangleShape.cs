@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using PhysicEngine.Collision;
 using PhysicEngine.Etc;
 
-namespace PhysicEngine.Shape
+namespace PhysicEngine.Object.Shape
 {
     class RectangleShape : Shape2D
     {
@@ -26,9 +26,9 @@ namespace PhysicEngine.Shape
             get { return currentCorners; }
             set { currentCorners = value; }
         }
+
         Vector2[] normals;
         Vector2[] currentNormals;
-
         public Vector2[] CurrentNormals
         {
             get { return currentNormals; }
@@ -87,28 +87,38 @@ namespace PhysicEngine.Shape
             }
         }
 
-        public RectangleShape(Rectangle rect, Vector2 position, bool moveable = true)
-            : this(rect, new Vector2(rect.Width, rect.Height) / 2, position, moveable)
+        public RectangleShape(Point size, Vector2 position, bool moveable = true)
+            : base(new Vector2(size.X / 2, size.Y / 2).Length(), position, new Vector2(size.X / 2, size.Y / 2), moveable)
         {
-        }
-
-        public RectangleShape(Rectangle rect, Point position, bool moveable = true)
-            : this(rect, new Vector2(position.X,position.Y), moveable)
-        {
-        }
-
-        public RectangleShape(Rectangle rect, Vector2 middlePoint, Vector2 position, bool moveable = true)
-            : base(middlePoint.Length(), position, middlePoint, moveable)
-        {
-            this.corners = new Vector2[] { new Vector2(0, 0) - middlePoint, new Vector2(rect.Width, 0) - middlePoint, new Vector2(rect.Width, rect.Height) - middlePoint, new Vector2(0, rect.Height) - middlePoint };
+            this.area = size.X * size.Y;
+            this.corners = new Vector2[] { new Vector2(0, 0) - MiddlePoint, new Vector2(size.X, 0) - MiddlePoint, new Vector2(size.X, size.Y) - MiddlePoint, new Vector2(0, size.Y) - MiddlePoint };
             currentCorners = new Vector2[4];
             for (int i = 0; i < 4; ++i)
             {
                 currentCorners[i] = position + corners[i];
             }
-            this.normals = new Vector2[] { Vector2.UnitY, Vector2.UnitX,-Vector2.UnitY,-Vector2.UnitX, };
+            this.normals = new Vector2[] { Vector2.UnitY, Vector2.UnitX, -Vector2.UnitY, -Vector2.UnitX, };
             this.currentNormals = new Vector2[] { Vector2.UnitY, Vector2.UnitX, -Vector2.UnitY, -Vector2.UnitX, };
         }
+
+        public RectangleShape(Rectangle rect, Point position, bool moveable = true)
+            : this(new Point(rect.Width,rect.Height), new Vector2(position.X,position.Y), moveable)
+        {
+        }
+
+        //public RectangleShape(Point size, Vector2 middlePoint, Vector2 position, bool moveable = true)
+        //    : base(middlePoint.Length(), position, middlePoint, moveable)
+        //{
+        //    this.area = size.X * size.Y;
+        //    this.corners = new Vector2[] { new Vector2(0, 0) - middlePoint, new Vector2(size.X, 0) - middlePoint, new Vector2(size.X, size.Y) - middlePoint, new Vector2(0, size.Y) - middlePoint };
+        //    currentCorners = new Vector2[4];
+        //    for (int i = 0; i < 4; ++i)
+        //    {
+        //        currentCorners[i] = position + corners[i];
+        //    }
+        //    this.normals = new Vector2[] { Vector2.UnitY, Vector2.UnitX,-Vector2.UnitY,-Vector2.UnitX, };
+        //    this.currentNormals = new Vector2[] { Vector2.UnitY, Vector2.UnitX, -Vector2.UnitY, -Vector2.UnitX, };
+        //}
 
         /// <summary>
         /// calculate the range when projected to a vector

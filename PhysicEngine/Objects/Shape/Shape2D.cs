@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using PhysicEngine.Collision;
 
-namespace PhysicEngine.Shape
+namespace PhysicEngine.Object.Shape
 {
     abstract class Shape2D
     {
@@ -36,6 +36,7 @@ namespace PhysicEngine.Shape
             get;
         }
 
+
         /*
          * Physic-spcefic attributes for Calculations
          */
@@ -60,6 +61,11 @@ namespace PhysicEngine.Shape
             set { moveable = value; }
         }
 
+        protected float area;
+        public float Area
+        {
+            get { return area; }
+        }
 
         /// <summary>
         /// Constructor
@@ -71,6 +77,7 @@ namespace PhysicEngine.Shape
             this.middlePoint = Vector2.Zero;
             this.moveable = true;
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -140,19 +147,18 @@ namespace PhysicEngine.Shape
         /// <returns>true if point is inside of the object</returns>
         public abstract bool contains(Vector2 point);
 
-        public static void handleCollision(IntersectData data, Shape2D o1, Shape2D o2)
-        {
-            if (o1.moveable)
-            {
-                if (o2.moveable)
-                {
-                    o1.Position += (data.Mtv * data.PenetrationDepth / 2);
-                    o2.Position -= (data.Mtv * data.PenetrationDepth / 2);
-
-                }
-                else
-                    o1.Position += (data.Mtv * data.PenetrationDepth);
-            }
-        }
+        //public static void handleCollision(IntersectData data, Shape2D o1, Shape2D o2)
+        //{
+        //    if (o1.moveable)
+        //    {
+        //        if (o2.moveable)
+        //        {
+        //            o1.Position += (data.Mtv * data.PenetrationDepth / 2);
+        //            o2.Position -= (data.Mtv * data.PenetrationDepth / 2);
+        //        }
+        //        else
+        //            o1.Position += (data.Mtv * data.PenetrationDepth);
+        //    }
+        //}
     }
 }
