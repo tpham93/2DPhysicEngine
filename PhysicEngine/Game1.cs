@@ -76,11 +76,12 @@ namespace PhysicEngine
             objects.Add(Object2D.generateCircleObject(8, new Vector2(400, 30), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
             objects.Add(Object2D.generateCircleObject(8, new Vector2(450, 50), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
 
+            MaterialData groundMaterial = new MaterialData(float.PositiveInfinity, 1, 0.05f, 0.03f);
 
-            objects.Add(Object2D.generateRectangleObject(new Point(800, 20), new Vector2(400, 400), Helper.genRectangleTexture(800, 20, Color.Transparent, Color.White), new MaterialData(float.PositiveInfinity, 1)));
-            objects.Add(Object2D.generateRectangleObject(new Point(800, 20), new Vector2(400, -10), Helper.genRectangleTexture(800, 20, Color.Transparent, Color.White), new MaterialData(float.PositiveInfinity, 1)));
-            objects.Add(Object2D.generateRectangleObject(new Point(20, 800), new Vector2(810, 240), Helper.genRectangleTexture(20, 800, Color.Transparent, Color.White), new MaterialData(float.PositiveInfinity, 1)));
-            objects.Add(Object2D.generateRectangleObject(new Point(20, 800), new Vector2(-10, 240), Helper.genRectangleTexture(20, 800, Color.Transparent, Color.White), new MaterialData(float.PositiveInfinity, 1)));
+            objects.Add(Object2D.generateRectangleObject(new Point(800, 20), new Vector2(400, 400), Helper.genRectangleTexture(800, 20, Color.Transparent, Color.White), groundMaterial));
+            objects.Add(Object2D.generateRectangleObject(new Point(800, 20), new Vector2(400, -10), Helper.genRectangleTexture(800, 20, Color.Transparent, Color.White), groundMaterial));
+            objects.Add(Object2D.generateRectangleObject(new Point(20, 800), new Vector2(810, 240), Helper.genRectangleTexture(20, 800, Color.Transparent, Color.White), groundMaterial));
+            objects.Add(Object2D.generateRectangleObject(new Point(20, 800), new Vector2(-10, 240), Helper.genRectangleTexture(20, 800, Color.Transparent, Color.White), groundMaterial));
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace PhysicEngine
             input.Update();
 
             lastSpawn += gameTime.ElapsedGameTime;
-            if(lastSpawn >= spawntime && input.mouseInsideWindow())
+            if(lastSpawn >= spawntime && input.mouseInsideWindow() && input.mouseButtonClicked(Input.EMouseButton.LeftButton))
             {
                 objects.Add(Object2D.generateCircleObject(8, input.mousePositionV2(), texture, MaterialData.Stone));
 
@@ -127,11 +128,6 @@ namespace PhysicEngine
             }
             for (int i = 0; i < objects.Count; ++i)
             {
-                //for (int j = 0; j < i; ++j)
-                //{
-                //    CollisionManifold manifold = Object2D.checkCollision(objects[i], objects[j]);
-                //    manifold.resolveCollision();
-                //}
                 for (int j = i + 1; j < objects.Count; ++j)
                 {
                     CollisionManifold manifold = Object2D.checkCollision(objects[i], objects[j]);

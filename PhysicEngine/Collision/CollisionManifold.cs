@@ -12,18 +12,18 @@ namespace PhysicEngine.Collision
         private Object2D b;
         private IntersectData intersectData;
 
-        
+
         public Object2D A
         {
-          get { return a; }
+            get { return a; }
         }
         public Object2D B
         {
-          get { return b; }
+            get { return b; }
         }
         public IntersectData IntersectData
         {
-          get { return intersectData; }
+            get { return intersectData; }
         }
 
         public CollisionManifold(Object2D a, Object2D b, IntersectData intersectData)
@@ -35,25 +35,65 @@ namespace PhysicEngine.Collision
 
         public void resolveCollision()
         {
-            if (intersectData.Intersects)
+            if (intersectData.Intersects && !float.IsNaN(intersectData.Mtv.X) && !float.IsNaN(intersectData.Mtv.Y))
             {
-                Vector2 relativeVelocity = B.Velocity - A.Velocity;
-                float velocityAlongMTV = Vector2.Dot(relativeVelocity, IntersectData.Mtv);
+                /*
+                 * collision impulse
+                 */
 
+                Vector2 relativeVelocity = B.Velocity - A.Velocity;
                 float minRestitution = Math.Min(A.MaterialData.Restitution, B.MaterialData.Restitution);
-                float impulseMagnitude = -((1 + minRestitution) * velocityAlongMTV) / (A.MassData.IMass + B.MassData.IMass);
-                Vector2 impulse = intersectData.Mtv * impulseMagnitude;
+                float contactImpulseMagnitude = -((1 + minRestitution) * Vector2.Dot(relativeVelocity, IntersectData.Mtv)) / (A.MassData.IMass + B.MassData.IMass);
+                Vector2 contactImpulse = intersectData.Mtv * contactImpulseMagnitude;
                 if (A.MassData.IMass != 0)
                 {
-                    A.Velocity -= A.MassData.IMass * impulse;
+                    A.Velocity -= A.MassData.IMass * contactImpulse;
                     A.Position -= intersectData.Mtv * intersectData.PenetrationDepth;
                 }
                 if (B.MassData.IMass != 0)
                 {
-                    B.Velocity += B.MassData.IMass * impulse;
+                    B.Velocity += B.MassData.IMass * contactImpulse;
                     B.Position += intersectData.Mtv * intersectData.PenetrationDepth;
                 }
+
                 positionalCorrection();
+
+                /*
+                 * friction
+                 */
+
+                relativeVelocity = B.Velocity - A.Velocity;
+                Vector2 tangent = relativeVelocity - Vector2.Dot(relativeVelocity, intersectData.Mtv) * intersectData.Mtv;
+                if (tangent != Vector2.Zero)
+                {
+                    tangent.Normalize();
+
+                    float frictionImpulseMagnitude = -Vector2.Dot(relativeVelocity, tangent) / (A.MassData.IMass + B.MassData.IMass);
+                    float staticFrictionCoefficient = new Vector2(A.MaterialData.StaticFriction, A.MaterialData.StaticFriction).Length();
+
+                    Vector2 frictionImpulse = Vector2.Zero;
+                    if (!float.IsNaN(staticFrictionCoefficient) && Math.Abs(frictionImpulseMagnitude) < Math.Abs(contactImpulseMagnitude * staticFrictionCoefficient))
+                    {
+                        frictionImpulse = tangent * frictionImpulseMagnitude;
+                    }
+                    else
+                    {
+                        float dynamicFrictionCoefficient = new Vector2(A.MaterialData.DynamicFriction, A.MaterialData.DynamicFriction).Length();
+                        if (!float.IsNaN(dynamicFrictionCoefficient))
+                            frictionImpulse = tangent * dynamicFrictionCoefficient * -contactImpulseMagnitude;
+                    }
+
+                    if (A.MassData.IMass != 0)
+                    {
+                        A.Velocity -= A.MassData.IMass * frictionImpulse;
+                    }
+                    if (B.MassData.IMass != 0)
+                    {
+                        B.Velocity += B.MassData.IMass * frictionImpulse;
+                    }
+                }
+
+
             }
         }
 
