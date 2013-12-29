@@ -11,7 +11,7 @@ namespace PhysicEngine.Collision
         private Object2D a;
         private Object2D b;
         private IntersectData intersectData;
-
+        private ContactManifold contactManifold;
 
         public Object2D A
         {
@@ -25,12 +25,24 @@ namespace PhysicEngine.Collision
         {
             get { return intersectData; }
         }
+        public ContactManifold ContactManifold
+        {
+            get { return contactManifold; }
+        }
 
         public CollisionManifold(Object2D a, Object2D b, IntersectData intersectData)
         {
             this.a = a;
             this.b = b;
             this.intersectData = intersectData;
+            if (intersectData.Intersects)
+            {
+                this.contactManifold = new ContactManifold(a.Shape, b.Shape, intersectData.Mtv * intersectData.PenetrationDepth);
+            }
+            else
+            {
+                this.contactManifold = new ContactManifold();
+            }
         }
 
         public void resolveCollision()
@@ -83,11 +95,11 @@ namespace PhysicEngine.Collision
                             frictionImpulse = tangent * dynamicFrictionCoefficient * -contactImpulseMagnitude;
                     }
 
-                    if (A.MassData.IMass != 0)
+                    if (A.MassData.IMass != 0 && !float.IsNaN(frictionImpulse.X) && !float.IsNaN(frictionImpulse.Y))
                     {
                         A.Velocity -= A.MassData.IMass * frictionImpulse;
                     }
-                    if (B.MassData.IMass != 0)
+                    if (B.MassData.IMass != 0 && !float.IsNaN(frictionImpulse.X) && !float.IsNaN(frictionImpulse.Y))
                     {
                         B.Velocity += B.MassData.IMass * frictionImpulse;
                     }
@@ -111,5 +123,7 @@ namespace PhysicEngine.Collision
                 B.Position -= correction * B.MassData.IMass;
             }
         }
+        
+       
     }
 }

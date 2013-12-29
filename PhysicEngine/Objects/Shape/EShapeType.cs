@@ -7,8 +7,7 @@ namespace PhysicEngine.Object.Shape
 {
     enum EShapeType
     {
-        EdgeShape,
-        RectangleShape,
+        PolygonShape,
         CircleShape
     }
 }

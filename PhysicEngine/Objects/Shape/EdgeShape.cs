@@ -11,7 +11,7 @@ using PhysicEngine.Collision;
 
 namespace PhysicEngine.Object.Shape
 {
-    class EdgeShape : Shape2D
+    class PolygonShape : Shape2D
     {
 
         Vector2[] corners;
@@ -42,7 +42,7 @@ namespace PhysicEngine.Object.Shape
         /// </summary>
         public override EShapeType ShapeType
         {
-            get { return EShapeType.EdgeShape; }
+            get { return EShapeType.PolygonShape; }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace PhysicEngine.Object.Shape
             }
         }
 
-        public EdgeShape(Vector2[] corners, Vector2 position, bool moveable = true)
+        public PolygonShape(Vector2[] corners, Vector2 position, bool moveable = true)
             : base(0, position, Vector2.Zero, moveable)
         {
 
@@ -109,7 +109,7 @@ namespace PhysicEngine.Object.Shape
             this.area = area;
 
             middlePoint /= 6 * area;
-            this.MiddlePoint = new Vector2(Math.Abs(middlePoint.X),Math.Abs(middlePoint.Y));
+            this.MiddlePoint = new Vector2(Math.Abs(middlePoint.X), Math.Abs(middlePoint.Y));
             this.radius = MiddlePoint.Length();
 
             this.corners = new Vector2[corners.Length];
@@ -132,6 +132,22 @@ namespace PhysicEngine.Object.Shape
                     currentNormals.Add(normal);
                 }
             }
+        }
+
+        public PolygonShape(Point size, Vector2 position, bool moveable = true)
+            : base(new Vector2(size.X / 2, size.Y / 2).Length(), position, new Vector2(size.X / 2, size.Y / 2), moveable)
+        {
+            this.area = size.X * size.Y;
+            this.corners = new Vector2[] { new Vector2(0, 0) - MiddlePoint, new Vector2(size.X, 0) - MiddlePoint, new Vector2(size.X, size.Y) - MiddlePoint, new Vector2(0, size.Y) - MiddlePoint };
+            currentCorners = new Vector2[4];
+            for (int i = 0; i < 4; ++i)
+            {
+                currentCorners[i] = position + corners[i];
+            }
+            this.normals = new List<Vector2>();
+            normals.AddRange(new Vector2[] { Vector2.UnitY, Vector2.UnitX});
+            this.currentNormals = new List<Vector2>();
+            currentNormals.AddRange(new Vector2[] { Vector2.UnitY, Vector2.UnitX});
         }
 
         /// <summary>
@@ -163,7 +179,7 @@ namespace PhysicEngine.Object.Shape
         /// </summary>
         /// <param name="o">EdgeObject which is to be checked for an intersection</param>
         /// <returns>true if it intersects</returns>
-        public override IntersectData intersects(EdgeShape o)
+        public override IntersectData intersects(PolygonShape o)
         {
             VectorData mtv = new VectorData();
             mtv.length = float.PositiveInfinity;
@@ -188,66 +204,6 @@ namespace PhysicEngine.Object.Shape
                 }
             }
             foreach (Vector2 n in o.currentNormals)
-            {
-                Vector2 possibleMtv = n;
-
-                Range r1 = getProjectionRange(possibleMtv);
-                Range r2 = o.getProjectionRange(possibleMtv);
-
-                float distance = Range.distance(r1, r2);
-
-                if (distance >= 0)
-                {
-                    return new IntersectData();
-                }
-                else if (mtv.length > -distance)
-                {
-                    mtv.length = -distance;
-                    mtv.direction = possibleMtv;
-                }
-            }
-
-
-            if (Vector2.Dot(mtv.direction, o.Position - Position) < 0)
-            {
-                mtv.direction *= -1.0f;
-            }
-
-            return new IntersectData(mtv);
-        }
-
-
-        /// <summary>
-        /// checks if the object is intersecting with another CircleObject
-        /// </summary>
-        /// <param name="o">EdgeObject which is to be checked for an intersection</param>
-        /// <returns>true if it intersects</returns>
-        public override IntersectData intersects(RectangleShape o)
-        {
-            VectorData mtv = new VectorData();
-            mtv.length = float.PositiveInfinity;
-
-            foreach (Vector2 n in currentNormals)
-            {
-                Vector2 possibleMtv = n;
-
-                Range r1 = getProjectionRange(possibleMtv);
-                Range r2 = o.getProjectionRange(possibleMtv);
-
-                float distance = Range.distance(r1, r2);
-
-                if (distance >= 0)
-                {
-                    return new IntersectData();
-                }
-                else if (mtv.length > -distance)
-                {
-                    mtv.length = -distance;
-                    mtv.direction = possibleMtv;
-                }
-
-            }
-            foreach (Vector2 n in o.CurrentNormals)
             {
                 Vector2 possibleMtv = n;
 

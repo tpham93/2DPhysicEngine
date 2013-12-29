@@ -82,24 +82,7 @@ namespace PhysicEngine.Object.Shape
         /// </summary>
         /// <param name="o">EdgeObject which is to be checked for an intersection</param>
         /// <returns>true if it intersects</returns>
-        public override IntersectData intersects(EdgeShape o)
-        {
-            IntersectData intersectData = o.intersects(this);
-            if (intersectData.Intersects)
-            {
-
-                return intersectData;
-
-            }
-            else return new IntersectData();
-        }
-
-        /// <summary>
-        /// checks if the object is intersecting with another EdgeObject
-        /// </summary>
-        /// <param name="o">EdgeObject which is to be checked for an intersection</param>
-        /// <returns>true if it intersects</returns>
-        public override IntersectData intersects(RectangleShape o)
+        public override IntersectData intersects(PolygonShape o)
         {
             IntersectData intersectData = o.intersects(this);
             if (intersectData.Intersects)

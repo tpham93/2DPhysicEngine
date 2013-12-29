@@ -110,11 +110,8 @@ namespace PhysicEngine.Object.Shape
                     IntersectData intersectData = null;
                     switch (o.ShapeType)
                     {
-                        case EShapeType.EdgeShape:
-                            intersectData = intersects((EdgeShape)o);
-                            break;
-                        case EShapeType.RectangleShape:
-                            intersectData = intersects((RectangleShape)o);
+                        case EShapeType.PolygonShape:
+                            intersectData = intersects((PolygonShape)o);
                             break;
                         case EShapeType.CircleShape:
                             intersectData = intersects((CircleShape)o);
@@ -136,8 +133,7 @@ namespace PhysicEngine.Object.Shape
         public abstract Range getProjectionRange(Vector2 v);
 
 
-        public abstract IntersectData intersects(EdgeShape o);
-        public abstract IntersectData intersects(RectangleShape o);
+        public abstract IntersectData intersects(PolygonShape o);
         public abstract IntersectData intersects(CircleShape o);
 
         /// <summary>

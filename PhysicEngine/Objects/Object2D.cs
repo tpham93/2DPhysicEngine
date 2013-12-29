@@ -135,7 +135,7 @@ namespace PhysicEngine.Objects
         public static Object2D generateRectangleObject(Point size, Vector2 position, Texture2D texture, MaterialData material)
         {
             Vector2 centerOfMass = new Vector2(size.X / 2, size.Y / 2);
-            Shape2D shape = new RectangleShape(size, position);
+            Shape2D shape = new PolygonShape(size, position);
             return new Object2D(shape, texture, material);
         }
 
@@ -159,7 +159,7 @@ namespace PhysicEngine.Objects
 
             Vector2 centerOfMass = Vector2.Zero;
 
-            Shape2D shape = new EdgeShape(corners, position);
+            Shape2D shape = new PolygonShape(corners, position);
             return new Object2D(shape, texture, material);
         }
 

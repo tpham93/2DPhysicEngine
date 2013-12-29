@@ -26,7 +26,7 @@ namespace PhysicEngine
         SpriteBatch spriteBatch;
 
         Input input;
-
+        List<Vector2> contactPoints;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -51,7 +51,7 @@ namespace PhysicEngine
         List<Object2D> objects;
 
 
-        Vector2[] corners = new Vector2[] { new Vector2(0, 6), new Vector2(0, 30), new Vector2(40, 30), new Vector2(40, 6), new Vector2(20, 0) };
+        Vector2[] corners = new Vector2[] { new Vector2(0, 6), new Vector2(20, 0), new Vector2(40, 6), new Vector2(40, 30), new Vector2(0, 30) };
         
         
         /// <summary>
@@ -64,24 +64,26 @@ namespace PhysicEngine
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Helper.Initialize(GraphicsDevice);
 
-            texture = Helper.genCircleTexture(8, Color.Transparent, Color.Red, 1);
-            //texture = Helper.genPolygonTexture(corners, Color.Transparent, Color.Red, 1);
+            //texture = Helper.genCircleTexture(8, Color.Transparent, Color.Red, 1);
+            texture = Helper.genPolygonTexture(corners, Color.Transparent, Color.Red, 1);
             objects = new List<Object2D>();
 
-            objects.Add(Object2D.generateCircleObject(8, new Vector2(300, 1), Helper.genCircleTexture(8, Color.White, Color.Black, 1),MaterialData.Stone));
-            objects.Add(Object2D.generateCircleObject(8, new Vector2(350, 1), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
-            objects.Add(Object2D.generateCircleObject(8, new Vector2(400, 1), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
-            objects.Add(Object2D.generateCircleObject(8, new Vector2(300, 0), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
-            objects.Add(Object2D.generateCircleObject(8, new Vector2(350, 10), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
-            objects.Add(Object2D.generateCircleObject(8, new Vector2(400, 30), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
-            objects.Add(Object2D.generateCircleObject(8, new Vector2(450, 50), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
+            //objects.Add(Object2D.generateCircleObject(8, new Vector2(300, 1), Helper.genCircleTexture(8, Color.White, Color.Black, 1),MaterialData.Stone));
+            //objects.Add(Object2D.generateCircleObject(8, new Vector2(350, 1), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
+            //objects.Add(Object2D.generateCircleObject(8, new Vector2(400, 1), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
+            //objects.Add(Object2D.generateCircleObject(8, new Vector2(300, 0), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
+            //objects.Add(Object2D.generateCircleObject(8, new Vector2(350, 10), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
+            //objects.Add(Object2D.generateCircleObject(8, new Vector2(400, 30), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
+            //objects.Add(Object2D.generateCircleObject(8, new Vector2(450, 50), Helper.genCircleTexture(8, Color.White, Color.Black, 1), MaterialData.Stone));
 
             MaterialData groundMaterial = new MaterialData(float.PositiveInfinity, 1, 0.05f, 0.03f);
 
-            objects.Add(Object2D.generateRectangleObject(new Point(800, 20), new Vector2(400, 400), Helper.genRectangleTexture(800, 20, Color.Transparent, Color.White), groundMaterial));
-            objects.Add(Object2D.generateRectangleObject(new Point(800, 20), new Vector2(400, -10), Helper.genRectangleTexture(800, 20, Color.Transparent, Color.White), groundMaterial));
-            objects.Add(Object2D.generateRectangleObject(new Point(20, 800), new Vector2(810, 240), Helper.genRectangleTexture(20, 800, Color.Transparent, Color.White), groundMaterial));
-            objects.Add(Object2D.generateRectangleObject(new Point(20, 800), new Vector2(-10, 240), Helper.genRectangleTexture(20, 800, Color.Transparent, Color.White), groundMaterial));
+            objects.Add(Object2D.generateRectangleObject(new Point(700, 20), new Vector2(400, 400), Helper.genRectangleTexture(700, 20, Color.Transparent, Color.White), groundMaterial));
+            objects.Add(Object2D.generateRectangleObject(new Point(700, 20), new Vector2(400, -10), Helper.genRectangleTexture(700, 20, Color.Transparent, Color.White), groundMaterial));
+            objects.Add(Object2D.generateRectangleObject(new Point(20, 700), new Vector2(810, 240), Helper.genRectangleTexture(20, 700, Color.Transparent, Color.White), groundMaterial));
+            objects.Add(Object2D.generateRectangleObject(new Point(20, 700), new Vector2(-10, 240), Helper.genRectangleTexture(20, 700, Color.Transparent, Color.White), groundMaterial));
+
+            contactPoints = new List<Vector2>();
         }
 
         /// <summary>
@@ -109,13 +111,13 @@ namespace PhysicEngine
             Window.Title = "Objects: " + objects.Count + " FPS: " + (int)(1 / gameTime.ElapsedGameTime.TotalSeconds);
 
             input.Update();
-
+            contactPoints.Clear();
             lastSpawn += gameTime.ElapsedGameTime;
             if(lastSpawn >= spawntime && input.mouseInsideWindow() && input.mouseButtonClicked(Input.EMouseButton.LeftButton))
             {
-                objects.Add(Object2D.generateCircleObject(8, input.mousePositionV2(), texture, MaterialData.Stone));
+                //objects.Add(Object2D.generateCircleObject(8, input.mousePositionV2(), texture, MaterialData.Stone));
 
-                //objects.Add(Object2D.generateEdgeObject(corners,input.mousePositionV2(),texture,MaterialData.Stone));
+                objects.Add(Object2D.generateEdgeObject(corners,input.mousePositionV2(),texture,MaterialData.Stone));
 
 
                 lastSpawn = TimeSpan.Zero;
@@ -131,6 +133,7 @@ namespace PhysicEngine
                 for (int j = i + 1; j < objects.Count; ++j)
                 {
                     CollisionManifold manifold = Object2D.checkCollision(objects[i], objects[j]);
+                    contactPoints.AddRange(manifold.ContactManifold.ContactPoints);
                     manifold.resolveCollision();
                 }
             }
@@ -144,14 +147,18 @@ namespace PhysicEngine
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            Texture2D pixel = Helper.genRectangleTexture(1, 1, Color.White, Color.White);
+            Texture2D pixel = Helper.genRectangleTexture(2, 2, Color.White, Color.White);
             // TODO: Add your drawing code here
             spriteBatch.Begin();
             for (int i = 0; i < objects.Count; ++i)
             {
                 objects[i].Draw(spriteBatch);
-                spriteBatch.Draw(pixel, objects[i].Position, Color.White);
             }
+            for (int i = 0; i < contactPoints.Count; ++i)
+            {
+                spriteBatch.Draw(pixel, contactPoints[i], null, Color.White,0,Vector2.One,1,SpriteEffects.None,0);
+            }
+
             spriteBatch.End();
             base.Draw(gameTime);
         }

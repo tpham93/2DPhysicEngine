@@ -159,7 +159,7 @@ namespace PhysicEngine.Etc
             {
                 Vector2 startPoint = corners[i - 1];
                 Vector2 edge = corners[i % corners.Length] - corners[i - 1];
-                spriteBatch.Draw(pixel, new Rectangle((int)startPoint.X, (int)startPoint.Y, (int)Math.Ceiling(edge.Length()), outlineWidth), null, outline, (float)Helper.getAngleFromVector2(edge), new Vector2(0, outlineWidth), SpriteEffects.None, 0);
+                spriteBatch.Draw(pixel, new Rectangle((int)startPoint.X, (int)startPoint.Y, (int)Math.Ceiling(edge.Length()), outlineWidth), null, outline, (float)Helper.getAngleFromVector2(edge), Vector2.Zero, SpriteEffects.None, 0);
             }
             spriteBatch.End();
 
